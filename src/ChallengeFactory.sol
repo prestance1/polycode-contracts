@@ -3,14 +3,34 @@ pragma solidity ^0.8.13;
 import {Challenge} from "./Challenge.sol";
 
 contract ChallengeFactory {
+    //----------------------------
+    //IMMUTABLE VARIABLES
+    //----------------------------
+
+    ///@notice address of the token to reward users with
     address immutable rewardToken;
+
+    //----------------------------
+    //STATE VARIABLES
+    //----------------------------
+
+    ///@notice maps challenge contracts to ids.
     mapping(address => uint256) public getId;
+    ///@notice maps challenge ids to contracts
     mapping(uint256 => address) public getChallenge;
+    ///@notice list containing the addresses of all deployed challenges
     address[] public allChallenges;
+    ///@notice admin access to the deployer contract
     address private owner;
 
-    event ChallengeCreated(uint256 indexed challengeId, address indexed challenge);
+    //----------------------------
+    //EVENTS
+    //----------------------------
+    event ChallengeDeployed(uint256 indexed challengeId, address indexed challenge);
 
+    //----------------------------
+    //ERRORS
+    //----------------------------
     error InvalidTimestamp(uint256, uint256);
     error ChallengeAlreadyCreated(address);
 
@@ -46,5 +66,10 @@ contract ChallengeFactory {
         Challenge challengeContract =
             deployChallenge(_challengeId, _challengeName, _depositAmount, _beginTimestamp, _endTimestamp);
         challenge = address(challengeContract);
+        allChallenges.push(challenge);
+        getId[challenge] = _challengeId;
+        getChallenge[_challengeId] = challenge;
+
+        emit ChallengeDeployed(_challengeId, challenge);
     }
 }
