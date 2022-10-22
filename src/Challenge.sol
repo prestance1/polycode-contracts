@@ -1,6 +1,7 @@
 pragma solidity ^0.8.13;
 
 import {ERC20} from "solmate/tokens/ERC20.sol";
+import {ERC20Burnable} from "openzeppelin-contracts/token/ERC20/extensions/ERC20Burnable.sol";
 
 //TODO IMPLEMENT ICHALLENGE INTERFACE
 contract Challenge {
@@ -37,7 +38,7 @@ contract Challenge {
     ///@notice flag that indicates whether or not
     bool public isClaimed;
     ///@notice admin address that sets owner
-    address private owner;
+    address public owner;
 
     //----------------------------
     //ERRORS
@@ -57,8 +58,8 @@ contract Challenge {
     //EVENTS
     //----------------------------
 
-    event Deposit(address indexed candidate, uint256 amount);
-    event Withdraw(address indexed candidate, uint256 amount);
+    event Subscription(address indexed candidate, uint256 amount);
+    event Unsubscription(address indexed candidate, uint256 amount);
     event RewardClaimed();
     event ChallengeCompleted(address indexed winner, uint256 rewardAmount);
 
@@ -88,7 +89,7 @@ contract Challenge {
     }
 
     modifier activeLock() {
-        if (block.timestamp < beginTimestamp || block.timestamp > endTimestamp) revert ChallengeNotActive();
+        if (!isActive()) revert ChallengeNotActive();
         _;
     }
 
@@ -109,16 +110,16 @@ contract Challenge {
         unchecked {
             numberOfSubscribers++;
         }
-        emit Deposit(msg.sender, depositAmount);
+        emit Subscription(msg.sender, depositAmount);
     }
 
-    function withdraw() external checkEligibility {
+    function unsubscribe() external checkEligibility {
         isSubscribed[msg.sender] = false;
         unchecked {
             numberOfSubscribers--;
         }
         ERC20(PLC).transfer(msg.sender, depositAmount);
-        emit Withdraw(msg.sender, depositAmount);
+        emit Unsubscription(msg.sender, depositAmount);
     }
 
     function claimReward() external {
@@ -134,11 +135,11 @@ contract Challenge {
     //----------------------------
     //CONVENIENCE FUNCTIONS
     //----------------------------
-    function currentPrizePool() external view returns (uint256 balance) {
+    function currentPrizePool() public view returns (uint256 balance) {
         balance = ERC20(PLC).balanceOf(address(this));
     }
 
-    function isActive() external view returns (bool) {
+    function isActive() public view returns (bool) {
         return (block.timestamp > beginTimestamp && block.timestamp < endTimestamp);
     }
 
@@ -156,5 +157,13 @@ contract Challenge {
 
     function setOwner(address _newOwner) external onlyOwner {
         owner = _newOwner;
+    }
+    //TODO: Maybe make it accessible for anyone to enable MEV opportunities, and the researchers gets a cut of the tokens burnt
+
+    function burnPrizePool() external {
+        //send cut to MEV researcher
+        ERC20Burnable(PLC).transfer(msg.sender, currentPrizePool() / 10);
+        //burn the rest
+        ERC20Burnable(PLC).burn(currentPrizePool());
     }
 }
