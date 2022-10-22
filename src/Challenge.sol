@@ -14,7 +14,7 @@ contract Challenge {
     string public challengeName;
     ///@notice address of the contract of the token to be rewarded
     //TODO: might wanna just deploy token contract first and then just make this a constant
-    address public immutable rewardToken;
+    address constant PLC = 0x84024b98Eb06Be023fac5d1Ff7c61c0c78750371;
     ///@notice amount of tokens to deposit to be subscribe to the challenge
     uint256 public immutable depositAmount;
     ///@notice timestamp of when the challenge starts in UNIX epochal
@@ -65,7 +65,6 @@ contract Challenge {
     constructor(
         uint256 _challengId,
         string memory _challengeName,
-        address _rewardToken,
         uint256 _beginTimestamp,
         uint256 _endTimestamp,
         uint256 _depositAmount,
@@ -73,7 +72,6 @@ contract Challenge {
     ) {
         challengeId = _challengId;
         challengeName = _challengeName;
-        rewardToken = _rewardToken;
         beginTimestamp = _beginTimestamp;
         endTimestamp = _endTimestamp;
         depositAmount = _depositAmount;
@@ -106,7 +104,7 @@ contract Challenge {
         if (block.timestamp > beginTimestamp) revert SubscriptionPeriodOver();
         if (isSubscribed[msg.sender]) revert AlreadySubscribed();
         //TODO: ask for approval to authorise the contract to transfer token on its behalf
-        ERC20(rewardToken).transferFrom(msg.sender, address(this), depositAmount);
+        ERC20(PLC).transferFrom(msg.sender, address(this), depositAmount);
         isSubscribed[msg.sender] = true;
         unchecked {
             numberOfSubscribers++;
@@ -119,7 +117,7 @@ contract Challenge {
         unchecked {
             numberOfSubscribers--;
         }
-        ERC20(rewardToken).transfer(msg.sender, depositAmount);
+        ERC20(PLC).transfer(msg.sender, depositAmount);
         emit Withdraw(msg.sender, depositAmount);
     }
 
@@ -127,8 +125,8 @@ contract Challenge {
         //dont need to check timestamp because address can only be set during active time
         if (msg.sender != winner) revert NotWinner();
         if (isClaimed) revert AlreadyClaimed();
-        uint256 prizePool = ERC20(rewardToken).balanceOf(address(this));
-        ERC20(rewardToken).transfer(msg.sender, prizePool);
+        uint256 prizePool = ERC20(PLC).balanceOf(address(this));
+        ERC20(PLC).transfer(msg.sender, prizePool);
         isClaimed = true;
         emit RewardClaimed();
     }
@@ -137,7 +135,7 @@ contract Challenge {
     //CONVENIENCE FUNCTIONS
     //----------------------------
     function currentPrizePool() external view returns (uint256 balance) {
-        balance = ERC20(rewardToken).balanceOf(address(this));
+        balance = ERC20(PLC).balanceOf(address(this));
     }
 
     function isActive() external view returns (bool) {
@@ -153,7 +151,7 @@ contract Challenge {
         if (!isSubscribed[_candidate]) revert Uneligible();
         winner = _candidate;
         isCompleted = true;
-        emit ChallengeCompleted(_candidate, ERC20(rewardToken).balanceOf(address(this)));
+        emit ChallengeCompleted(_candidate, ERC20(PLC).balanceOf(address(this)));
     }
 
     function setOwner(address _newOwner) external onlyOwner {

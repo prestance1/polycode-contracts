@@ -4,11 +4,11 @@ import {Challenge} from "./Challenge.sol";
 
 contract ChallengeFactory {
     //----------------------------
-    //IMMUTABLE VARIABLES
+    //CONSTANTS
     //----------------------------
 
     ///@notice address of the token to reward users with
-    address immutable rewardToken;
+    address constant PLC = 0x84024b98Eb06Be023fac5d1Ff7c61c0c78750371;
 
     //----------------------------
     //STATE VARIABLES
@@ -33,9 +33,15 @@ contract ChallengeFactory {
     //----------------------------
     error InvalidTimestamp(uint256, uint256);
     error ChallengeAlreadyCreated(address);
+    error Unauthorised(address, address);
 
-    constructor(address _rewardToken) {
-        rewardToken = _rewardToken;
+    constructor() {
+        owner = msg.sender;
+    }
+
+    modifier onlyOwner() {
+        if (msg.sender != owner) revert Unauthorised(owner, msg.sender);
+        _;
     }
 
     function allChallengesLength() external view returns (uint256) {
@@ -50,7 +56,7 @@ contract ChallengeFactory {
         uint256 _endTimestamp
     ) public returns (Challenge challenge) {
         challenge =
-        new Challenge{salt: keccak256(abi.encodePacked(_challengeId))}(_challengeId, _challengeName, rewardToken, _beginTimestamp, _endTimestamp, _depositAmount, owner);
+        new Challenge{salt: keccak256(abi.encodePacked(_challengeId))}(_challengeId, _challengeName, _beginTimestamp, _endTimestamp, _depositAmount, owner);
     }
 
     function createChallenge(
@@ -59,7 +65,7 @@ contract ChallengeFactory {
         uint256 _depositAmount,
         uint256 _beginTimestamp,
         uint256 _endTimestamp
-    ) external returns (address challenge) {
+    ) external onlyOwner returns (address challenge) {
         if (block.timestamp > _beginTimestamp) revert InvalidTimestamp(_beginTimestamp, _endTimestamp);
         if (_endTimestamp < _beginTimestamp) revert InvalidTimestamp(_beginTimestamp, _endTimestamp);
         if (getChallenge[_challengeId] != address(0)) revert ChallengeAlreadyCreated(getChallenge[_challengeId]);
@@ -71,5 +77,9 @@ contract ChallengeFactory {
         getChallenge[_challengeId] = challenge;
 
         emit ChallengeDeployed(_challengeId, challenge);
+    }
+
+    function setOwner(address _newOwner) external onlyOwner {
+        owner = _newOwner;
     }
 }
