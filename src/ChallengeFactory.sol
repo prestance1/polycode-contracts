@@ -21,7 +21,7 @@ contract ChallengeFactory {
     ///@notice list containing the addresses of all deployed challenges
     address[] public allChallenges;
     ///@notice admin access to the deployer contract
-    address private owner;
+    address public owner;
 
     //----------------------------
     //EVENTS
@@ -54,7 +54,7 @@ contract ChallengeFactory {
         uint256 _depositAmount,
         uint256 _beginTimestamp,
         uint256 _endTimestamp
-    ) public returns (Challenge challenge) {
+    ) internal returns (Challenge challenge) {
         challenge =
         new Challenge{salt: keccak256(abi.encodePacked(_challengeId))}(_challengeId, _challengeName, _beginTimestamp, _endTimestamp, _depositAmount, owner);
     }
