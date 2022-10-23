@@ -1,6 +1,7 @@
 pragma solidity ^0.8.13;
 
-import {ERC20} from "solmate/tokens/ERC20.sol";
+import {ERC20} from "openzeppelin-contracts/token/ERC20/ERC20.sol";
+
 import {ERC20Burnable} from "openzeppelin-contracts/token/ERC20/extensions/ERC20Burnable.sol";
 
 //TODO IMPLEMENT ICHALLENGE INTERFACE
@@ -29,6 +30,8 @@ contract Challenge {
 
     ///@notice indicates whether or not an address is subscribed to the challenge or not
     mapping(address => bool) public isSubscribed;
+    ///@notice addresses of the particpants
+    address[] public participants;
     ///@notice number of participants that are subscribed;
     uint80 public numberOfSubscribers;
     ///@notice address of the winner of the challenge
@@ -110,6 +113,8 @@ contract Challenge {
         unchecked {
             numberOfSubscribers++;
         }
+        participants.push(msg.sender);
+
         emit Subscription(msg.sender, depositAmount);
     }
 
@@ -132,15 +137,19 @@ contract Challenge {
         emit RewardClaimed();
     }
 
+    function getParticipants() external view returns (address[] memory) {
+        return participants;
+    }
     //----------------------------
     //CONVENIENCE FUNCTIONS
     //----------------------------
+
     function currentPrizePool() public view returns (uint256 balance) {
         balance = ERC20(PLC).balanceOf(address(this));
     }
 
     function isActive() public view returns (bool) {
-        return (block.timestamp > beginTimestamp && block.timestamp < endTimestamp);
+        return (block.timestamp >= beginTimestamp && block.timestamp <= endTimestamp);
     }
 
     //----------------------------

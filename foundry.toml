@@ -5,4 +5,7 @@ libs = ['lib']
 
 [rpc_endpoints]
 mumbai = "${MUMBAI_RPC_URL}"
+
+[etherscan]
+mumbai = { key = "${ETHERSCAN_API_KEY}" }
 # See more config options https://github.com/foundry-rs/foundry/tree/master/config
