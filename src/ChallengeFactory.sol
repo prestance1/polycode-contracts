@@ -8,7 +8,7 @@ contract ChallengeFactory {
     //----------------------------
 
     ///@notice address of the token to reward users with
-    address constant PLC = 0x84024b98Eb06Be023fac5d1Ff7c61c0c78750371;
+    address constant PLC = 0x9b53c5A7a5a1C1A38401A11F51a223d3f17BCf03;
 
     //----------------------------
     //STATE VARIABLES

@@ -16,7 +16,7 @@ contract Challenge {
     string public challengeName;
     ///@notice address of the contract of the token to be rewarded
     //TODO: might wanna just deploy token contract first and then just make this a constant
-    address constant PLC = 0x84024b98Eb06Be023fac5d1Ff7c61c0c78750371;
+    address constant PLC = 0x9b53c5A7a5a1C1A38401A11F51a223d3f17BCf03;
     ///@notice amount of tokens to deposit to be subscribe to the challenge
     uint256 public immutable depositAmount;
     ///@notice timestamp of when the challenge starts in UNIX epochal
@@ -171,7 +171,7 @@ contract Challenge {
 
     function burnPrizePool() external {
         //send cut to MEV researcher
-        ERC20Burnable(PLC).transfer(msg.sender, currentPrizePool() / 10);
+        ERC20(PLC).transfer(msg.sender, currentPrizePool() / 10);
         //burn the rest
         ERC20Burnable(PLC).burn(currentPrizePool());
     }
