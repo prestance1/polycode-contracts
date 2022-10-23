@@ -7,7 +7,7 @@ contract TokenScript is Script {
     function run() external {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
         vm.startBroadcast(deployerPrivateKey);
-        ChallengeFactory plcToken = new ChallengeFactory();
+        ChallengeFactory challengeFactory = new ChallengeFactory();
         vm.stopBroadcast();
     }
 }
