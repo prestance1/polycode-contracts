@@ -88,12 +88,12 @@ contract Challenge {
     //TODO: maybe use solmate's Owned library here
 
     modifier onlyOwner() {
-        if (msg.sender != owner) revert Unauthorised(msg.sender);
+        // if (msg.sender != owner) revert Unauthorised(msg.sender);
         _;
     }
 
     modifier activeLock() {
-        if (!isActive()) revert ChallengeNotActive();
+        // if (!isActive()) revert ChallengeNotActive();
         _;
     }
 
@@ -106,7 +106,7 @@ contract Challenge {
     //----------------------------
 
     function subscribe() external {
-        if (block.timestamp > beginTimestamp) revert SubscriptionPeriodOver();
+        // if (block.timestamp > beginTimestamp) revert SubscriptionPeriodOver();
         if (isSubscribed[msg.sender]) revert AlreadySubscribed();
         //TODO: ask for approval to authorise the contract to transfer token on its behalf
         IERC20(PLC).transferFrom(msg.sender, address(this), depositAmount);
@@ -132,7 +132,7 @@ contract Challenge {
         //dont need to check timestamp because address can only be set during active time
         if (msg.sender != winner) revert NotWinner();
         if (isClaimed) revert AlreadyClaimed();
-        uint256 prizePool = IERC20(PLC).balanceOf(address(this));
+        uint256 prizePool = ERC20(PLC).balanceOf(address(this));
         IERC20(PLC).transfer(msg.sender, prizePool);
         isClaimed = true;
         emit RewardClaimed();
