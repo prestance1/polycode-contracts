@@ -6,7 +6,7 @@ import {IERC20} from "openzeppelin-contracts/token/ERC20/IERC20.sol";
 import {ERC20Burnable} from "openzeppelin-contracts/token/ERC20/extensions/ERC20Burnable.sol";
 
 //TODO IMPLEMENT ICHALLENGE INTERFACE
-contract Challenge {
+contract DemoChallenge {
     //----------------------------
     //IMMUTABLE VARIABLES
     //----------------------------
